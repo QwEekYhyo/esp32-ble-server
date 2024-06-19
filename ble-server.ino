@@ -1,5 +1,8 @@
+#include <esp_bt_device.h>
 #include "BLEDevice.h"
 #include "BLEServer.h"
+
+#include "include/utils.hpp"
 
 #define LED_PIN 25
 
@@ -12,6 +15,8 @@
 #define DISTANCE_DESCRIPTOR_UUID       "3c462cba-886d-41f5-8fe6-37801a5bf590"
 #define BRIGHTNESS_CHARACTERISTIC_UUID "535ba877-fc4d-4059-88c1-56c081787162"
 #define BRIGHTNESS_DESCRIPTOR_UUID     "9e9c5424-d371-4fb9-b811-c466d765884b"
+
+// TODO: debug mode
 
 class NameCallback : public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic* pCharacteristic) {
@@ -117,6 +122,11 @@ void setup() {
 
     Serial.print("Server address:");
     Serial.println(BLEDevice::getAddress().toString().c_str());
+    Serial.print("Thing I need to print: ");
+    const uint8_t* truc = generate_uuid(&esp_fill_random, esp_bt_dev_get_address());
+    for (int i = 0; i < 16; i++) {
+        Serial.printf("%02x:", truc[i]);
+    }
 }
 
 void loop() {
