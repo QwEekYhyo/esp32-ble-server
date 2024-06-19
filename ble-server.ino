@@ -4,16 +4,17 @@
 
 #define LED_PIN 25
 
+#define DEBUG_MODE
 #define DEFAULT_DEVICE_NAME "Cucklord V3"
-
-// TODO: debug mode
 
 class NameCallbacks : public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic* pCharacteristic) {
         String value = pCharacteristic->getValue();
         if (value.length() > 0) {
             esp_ble_gap_set_device_name(value.c_str());
+#if defined(DEBUG_MODE)
             Serial.println("Changed device name");
+#endif
         }
     }
 };

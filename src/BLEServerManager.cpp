@@ -34,6 +34,8 @@ void BLEServerManager::start() {
     m_service->start();
     m_server->startAdvertising();
 
+#if defined(DEBUG_MODE)
     Serial.print("Server address:");
     Serial.println(BLEDevice::getAddress().toString().c_str());
+#endif
 }
