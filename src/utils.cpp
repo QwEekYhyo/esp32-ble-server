@@ -14,11 +14,14 @@ const uint8_t* generate_uuid(std::function<void(void*, size_t)> fill_random, con
     /*
         Because the UUID is generated with random numbers we need to specify
         that we are using version 4 here : xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx
-        so the sixth bytes has to be between 64 and 79
-        but because I don't know how to generate a number between a certain
-        range using esp_random, I just set it to 64
+        so the sixth byte has to be between 64 and 79
     */
-    uuid[6] = 64;
+    while (uuid[6] < 64) {
+        uuid[6] += 7;
+    }
+    while (uuid[6] > 79) {
+        uuid[6] -= 7;
+    }
 
     // Fill the last part of UUID with mac address
     for (uint8_t i = 0; i < 6; i++) {
