@@ -31,6 +31,7 @@ void BLEServerManager::addCharacteristic(const char* name, const char* defaultVa
     generate_uuid(buffer, &esp_fill_random, esp_bt_dev_get_address());
     BLEUUID descriptorUUID(buffer, 16, true);
     BLEDescriptor* newDescriptor = new BLEDescriptor(descriptorUUID);
+    newDescriptor->setAccessPermissions(ESP_GATT_PERM_READ);
     newDescriptor->setValue(name);
     newCharacteristic->addDescriptor(newDescriptor);
 }
