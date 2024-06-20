@@ -9,13 +9,17 @@ BLEServerManager::BLEServerManager(const char* name) {
     m_server->setCallbacks(new ServerCallBacks());
 
     // Create service
-    const char* serviceUUID = generate_formatted_uuid(&esp_fill_random, esp_bt_dev_get_address());
+    uint8_t buffer[16];
+    generate_uuid(buffer, &esp_fill_random, esp_bt_dev_get_address());
+    BLEUUID serviceUUID(buffer, 16, true);
     m_service = m_server->createService(serviceUUID);
 }
 
 void BLEServerManager::addCharacteristic(const char* name, const char* defaultValue, BLECharacteristicCallbacks* callbacks) {
     // Create characteristic in service
-    const char* characteristicUUID = generate_formatted_uuid(&esp_fill_random, esp_bt_dev_get_address());
+    uint8_t buffer[16];
+    generate_uuid(buffer, &esp_fill_random, esp_bt_dev_get_address());
+    BLEUUID characteristicUUID(buffer, 16, true);
     BLECharacteristic* newCharacteristic = m_service->createCharacteristic(
                                            characteristicUUID,
                                            BLECharacteristic::PROPERTY_READ |
@@ -24,7 +28,8 @@ void BLEServerManager::addCharacteristic(const char* name, const char* defaultVa
     newCharacteristic->setCallbacks(callbacks);
     newCharacteristic->setValue(defaultValue);
     // Add a descriptor to the characteristic
-    const char* descriptorUUID = generate_formatted_uuid(&esp_fill_random, esp_bt_dev_get_address());
+    generate_uuid(buffer, &esp_fill_random, esp_bt_dev_get_address());
+    BLEUUID descriptorUUID(buffer, 16, true);
     BLEDescriptor* newDescriptor = new BLEDescriptor(descriptorUUID);
     newDescriptor->setValue(name);
     newCharacteristic->addDescriptor(newDescriptor);
