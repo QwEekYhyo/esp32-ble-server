@@ -4,6 +4,8 @@
 
 #define LED_PIN 25
 
+#define FREQUENCY 2 // in Hz
+
 #define DEFAULT_DEVICE_NAME "Cucklord V3"
 
 class NameCallbacks : public BLECharacteristicCallbacks {
@@ -54,5 +56,5 @@ void setup() {
 }
 
 void loop() {
-    delay(500);
+    delay(1000 / FREQUENCY);
 }
