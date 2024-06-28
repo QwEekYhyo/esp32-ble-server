@@ -50,6 +50,10 @@ class DistanceCallbacks : public BLECharacteristicCallbacks {
                     pixels.setPixelColor(getSymmetrical(pixel), 0, 0, 0);
                 }
             }
+        } else {
+            for (uint8_t pixel = 0; pixel < 24; pixel++) {
+                pixels.setPixelColor(pixel, 0, 0, 0);
+            }
         }
 
         pixels.show();
