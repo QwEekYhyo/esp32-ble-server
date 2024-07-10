@@ -1,7 +1,7 @@
 #ifndef BLE_SERVER_MANAGER_HPP
 #define BLE_SERVER_MANAGER_HPP
 
-#define DEBUG_MODE
+// #define DEBUG_MODE
 
 #include <Arduino.h>
 #include "BLEServer.h"
