@@ -2,16 +2,18 @@
 #include <Adafruit_NeoPixel.h>
 
 #include "include/BLEServerManager.hpp"
+#include "include/color.hpp"
 
 #define LED_PIN 5
 #define FREQUENCY 2 // in Hz
+#define DELAYED_SECONDS 1000 / FREQUENCY
 #define DEFAULT_BRIGHTNESS 255
 #define DEFAULT_DEVICE_NAME "Procédure complexe"
 #define NUM_LED 37
 #define HEIGHT 7
 
 Adafruit_NeoPixel pixels(NUM_LED, LED_PIN);
-uint8_t currentBrightness = DEFAULT_BRIGHTNESS;
+Color currentColor(DEFAULT_BRIGHTNESS, 0, 0);
 
 uint8_t shape[HEIGHT] = {
     4,
@@ -41,7 +43,7 @@ void circle(uint8_t radius) {
         for (size_t x = 0; x < HEIGHT; x++) {
             for (size_t y = 0; y < shape[x]; y++) {
                 if (x >= outerRadius && x < HEIGHT - outerRadius && y >= outerRadius && y < shape[x] - outerRadius) {
-                    pixels.setPixelColor(getLedIndex(x, y), currentBrightness, 0, 0);
+                    pixels.setPixelColor(getLedIndex(x, y), currentColor.r, currentColor.g, currentColor.b);
                 } else {
                     pixels.setPixelColor(getLedIndex(x, y), 0, 0, 0);
                 }
@@ -62,12 +64,11 @@ class NameCallbacks : public BLECharacteristicCallbacks {
     }
 };
 
-class BrightnessCallbacks : public BLECharacteristicCallbacks {
+class ColorCallbacks : public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic* pCharacteristic) {
-        int value = pCharacteristic->getValue().toInt();
-        if (value <= 0) currentBrightness = 1;
-        else if (value > 255) currentBrightness = 255;
-        else currentBrightness = value;
+        String colorString = pCharacteristic->getValue();
+        if (colorString.length() == 6)
+            currentColor.setColor(colorString.c_str());
     }
 };
 
@@ -109,16 +110,16 @@ void setup() {
     }
     pixels.show();
 
-
     BLEServerManager server(DEFAULT_DEVICE_NAME);
 
     server.addCharacteristic("Name", DEFAULT_DEVICE_NAME, new NameCallbacks());
-    server.addCharacteristic("Brightness", String(currentBrightness).c_str(), new BrightnessCallbacks());
+    char colorString[7];
+    server.addCharacteristic("Color", currentColor.toString(colorString), new ColorCallbacks());
     server.addCharacteristic("Distance", "0", new DistanceCallbacks());
 
     server.start();
 }
 
 void loop() {
-    delay(1000 / FREQUENCY);
+    delay(DELAYED_SECONDS);
 }
