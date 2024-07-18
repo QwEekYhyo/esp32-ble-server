@@ -7,13 +7,12 @@
 #define LED_PIN 5
 #define FREQUENCY 2 // in Hz
 #define DELAYED_SECONDS 1000 / FREQUENCY
-#define DEFAULT_BRIGHTNESS 255
 #define DEFAULT_DEVICE_NAME "Procédure complexe"
 #define NUM_LED 37
 #define HEIGHT 7
 
 Adafruit_NeoPixel pixels(NUM_LED, LED_PIN);
-Color currentColor(DEFAULT_BRIGHTNESS, 0, 0);
+Color currentColor(255, 0, 0);
 
 uint8_t shape[HEIGHT] = {
     4,
@@ -72,6 +71,16 @@ class ColorCallbacks : public BLECharacteristicCallbacks {
     }
 };
 
+class BrightnessCallbacks : public BLECharacteristicCallbacks {
+    void onWrite(BLECharacteristic* pCharacteristic) {
+        int value = pCharacteristic->getValue().toInt();
+        if (value <= 0) value = 1;
+        else if (value > 255) value = 255;
+
+        pixels.setBrightness(value);
+    }
+};
+
 class DistanceCallbacks : public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic* pCharacteristic) {
         int value = pCharacteristic->getValue().toInt();
@@ -115,6 +124,7 @@ void setup() {
     server.addCharacteristic("Name", DEFAULT_DEVICE_NAME, new NameCallbacks());
     char colorString[7];
     server.addCharacteristic("Color", currentColor.toString(colorString), new ColorCallbacks());
+    server.addCharacteristic("Brightness", "255", new BrightnessCallbacks());
     server.addCharacteristic("Distance", "0", new DistanceCallbacks());
 
     server.start();
