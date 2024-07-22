@@ -24,6 +24,17 @@ void LEDManager::turnOff() {
     m_pixels.show();
 }
 
+void LEDManager::fill() {
+    fill(m_currentColor);
+}
+
+void LEDManager::fill(const Color& color) {
+    for (uint8_t pixel = 0; pixel < LEDManager::NUM_LED; pixel++) {
+        m_pixels.setPixelColor(pixel, color.r, color.g, color.b);
+    }
+    m_pixels.show();
+}
+
 void LEDManager::displayDistance(int distance) {
     if (distance <= 400) {
         uint8_t radius = 4 - distance / 100;

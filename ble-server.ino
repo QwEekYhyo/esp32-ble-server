@@ -3,10 +3,19 @@
 #include "include/BLEServerManager.hpp"
 #include "include/LEDManager.hpp"
 
-#define FREQUENCY 2 // in Hz
-#define DELAYED_SECONDS 1000 / FREQUENCY
 #define DEFAULT_DEVICE_NAME "Procédure complexe"
 
+uint64_t millis64() {
+    static uint32_t low32, high32;
+    uint32_t new_low32 = millis();
+    if (new_low32 < low32) high32++;
+    low32 = new_low32;
+    return (uint64_t) high32 << 32 | low32;
+}
+
+uint64_t lastBrightnessChange = 0;
+bool isBrightnessChanging = false;
+Color animColor(255, 0, 255);
 LEDManager ledManager;
 
 class NameCallbacks : public BLECharacteristicCallbacks {
@@ -36,6 +45,8 @@ class BrightnessCallbacks : public BLECharacteristicCallbacks {
         else if (value > 255) value = 255;
 
         ledManager.setBrightness(value);
+        isBrightnessChanging = true;
+        lastBrightnessChange = millis64();
     }
 };
 
@@ -77,5 +88,11 @@ void setup() {
 }
 
 void loop() {
-    delay(DELAYED_SECONDS);
+    if (isBrightnessChanging) {
+        ledManager.fill(animColor);
+        if (millis64() - lastBrightnessChange >= 1500) {
+            isBrightnessChanging = false;
+            ledManager.turnOff();
+        }
+    }
 }

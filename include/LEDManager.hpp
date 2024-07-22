@@ -11,6 +11,8 @@ public:
     LEDManager();
 
     void turnOff();
+    void fill();
+    void fill(const Color& color);
     void displayDistance(int distance);
 
     void setBrightness(uint8_t brightness);
