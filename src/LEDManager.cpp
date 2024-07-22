@@ -1,5 +1,6 @@
-#include "../include/LEDManager.hpp"
 #include <cstdint>
+
+#include "../include/LEDManager.hpp"
 
 uint8_t shape[LEDManager::HEIGHT] = {
     4,
@@ -25,10 +26,23 @@ void LEDManager::turnOff() {
 
 void LEDManager::displayDistance(int distance) {
     if (distance <= 400) {
-        circle(4 - distance / 100);
+        uint8_t radius = 4 - distance / 100;
+        if (radius != m_previousRadius) {
+            for (uint8_t i = 0; i < 2; i++) {
+                circle(radius);
+                m_pixels.show();
+                delay(100);
+                turnOff();
+                m_pixels.show();
+                delay(100);
+            }
+        }
+        circle(radius);
         m_pixels.show();
+        m_previousRadius = radius;
     } else {
         turnOff();
+        m_previousRadius = 0;
     }
 }
 

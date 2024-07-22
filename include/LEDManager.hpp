@@ -23,6 +23,7 @@ private:
 
     Adafruit_NeoPixel m_pixels;
     Color m_currentColor;
+    uint8_t m_previousRadius{0};
 
     size_t getLedIndex(size_t x, size_t y) const;
     void circle(uint8_t radius);
