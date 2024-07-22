@@ -15,6 +15,7 @@ uint64_t millis64() {
 
 uint64_t lastBrightnessChange = 0;
 bool isBrightnessChanging = false;
+int animOffset = 0;
 Color animColor(255, 0, 255);
 LEDManager ledManager;
 
@@ -87,12 +88,21 @@ void setup() {
     server.start();
 }
 
+uint8_t iterationCounter = 0;
+
 void loop() {
     if (isBrightnessChanging) {
-        ledManager.fill(animColor);
+        iterationCounter++;
+        if (iterationCounter >= 3) {
+            animOffset++;
+            iterationCounter = 0;
+        }
+        ledManager.rainbow(animOffset);
+        delay(20);
         if (millis64() - lastBrightnessChange >= 1500) {
             isBrightnessChanging = false;
             ledManager.turnOff();
+            animOffset = 0;
         }
     }
 }

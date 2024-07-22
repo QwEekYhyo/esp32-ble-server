@@ -57,6 +57,39 @@ void LEDManager::displayDistance(int distance) {
     }
 }
 
+void LEDManager::rainbow(int offset) {
+    for (size_t x = 0; x < LEDManager::HEIGHT; x++) {
+        int xOffset = (x + offset) % LEDManager::HEIGHT;
+        for (size_t y = 0; y < shape[xOffset]; y++) {
+            switch (x) {
+                case 0:
+                    m_pixels.setPixelColor(getLedIndex(xOffset, y), 255, 0, 0);
+                    break;
+                case 1:
+                    m_pixels.setPixelColor(getLedIndex(xOffset, y), 255, 127, 0);
+                    break;
+                case 2:
+                    m_pixels.setPixelColor(getLedIndex(xOffset, y), 255, 255, 0);
+                    break;
+                case 3:
+                    m_pixels.setPixelColor(getLedIndex(xOffset, y), 0, 255, 0);
+                    break;
+                case 4:
+                    m_pixels.setPixelColor(getLedIndex(xOffset, y), 0, 0, 255);
+                    break;
+                case 5:
+                    m_pixels.setPixelColor(getLedIndex(xOffset, y), 75, 0, 130);
+                    break;
+                default:
+                    m_pixels.setPixelColor(getLedIndex(xOffset, y), 148, 0, 211);
+                    break;
+            }
+        }
+    }
+
+    m_pixels.show();
+}
+
 size_t LEDManager::getLedIndex(size_t x, size_t y) const {
     size_t result = 0;
     for (size_t row = x + 1; row < LEDManager::HEIGHT; row++) {
