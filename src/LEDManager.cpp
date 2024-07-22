@@ -26,13 +26,10 @@ void LEDManager::turnOff() {
 void LEDManager::displayDistance(int distance) {
     if (distance <= 400) {
         circle(4 - distance / 100);
+        m_pixels.show();
     } else {
-        for (uint8_t pixel = 0; pixel < LEDManager::NUM_LED; pixel++) {
-            m_pixels.setPixelColor(pixel, 0, 0, 0);
-        }
+        turnOff();
     }
-
-    m_pixels.show();
 }
 
 size_t LEDManager::getLedIndex(size_t x, size_t y) const {
