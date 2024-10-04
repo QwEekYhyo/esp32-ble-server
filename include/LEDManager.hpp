@@ -17,6 +17,8 @@ public:
     void displayDistance(int distance);
     /* Hardware Dependent */
     void rainbow(int offset);
+    /* Hardware Dependent */
+    void line(size_t length);
 
     void setBrightness(uint8_t brightness);
     void setColor(const char* stringColor);
@@ -34,7 +36,5 @@ private:
 
     /* Hardware Dependent */
     size_t getLedIndex(size_t x, size_t y) const;
-    /* Hardware Dependent */
-    void line(size_t length);
 
 };

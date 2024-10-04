@@ -53,7 +53,6 @@ void LEDManager::displayDistance(int distance) {
         if (distance != m_previousLineLength) {
             for (uint8_t i = 0; i < 2; i++) {
                 line(line_length);
-                m_pixels.show();
                 delay(100);
                 turnOff();
                 m_pixels.show();
@@ -61,7 +60,6 @@ void LEDManager::displayDistance(int distance) {
             }
         }
         line(line_length);
-        m_pixels.show();
         m_previousLineLength = line_length;
     } else {
         turnOff();
@@ -95,8 +93,8 @@ void LEDManager::line(size_t length) {
             m_pixels.setPixelColor(i, 0, 0, 0);
         }
     } else {
-        for (size_t x = 0; x < LEDManager::HEIGHT; x++) {
-            for (size_t y = 0; y < shape[x]; y++) {
+        for (size_t y = 0; y < LEDManager::HEIGHT; y++) {
+            for (size_t x = 0; x < shape[y]; x++) {
                 if (x < length) {
                     m_pixels.setPixelColor(getLedIndex(x, y), m_currentColor.r, m_currentColor.g, m_currentColor.b);
                 } else {
@@ -105,6 +103,7 @@ void LEDManager::line(size_t length) {
             }
         }
     }
+    m_pixels.show();
 }
 
 void LEDManager::setBrightness(uint8_t brightness) {
