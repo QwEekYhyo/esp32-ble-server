@@ -6,7 +6,8 @@
 
 class LEDManager {
 public:
-    static constexpr uint8_t HEIGHT{7};
+    /* Hardware Dependent */
+    static constexpr uint8_t HEIGHT{1};
 
     LEDManager();
 
@@ -25,15 +26,15 @@ private:
     /* Hardware Dependent */
     static constexpr uint8_t LED_PIN{5};
     /* Hardware Dependent */
-    static constexpr uint8_t NUM_LED{37};
+    static constexpr uint8_t NUM_LED{21};
 
     Adafruit_NeoPixel m_pixels;
     Color m_currentColor;
-    uint8_t m_previousRadius{0};
+    size_t m_previousLineLength{0};
 
     /* Hardware Dependent */
     size_t getLedIndex(size_t x, size_t y) const;
     /* Hardware Dependent */
-    void circle(uint8_t radius);
+    void line(size_t length);
 
 };

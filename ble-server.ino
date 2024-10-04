@@ -3,7 +3,7 @@
 #include "include/BLEServerManager.hpp"
 #include "include/LEDManager.hpp"
 
-#define DEFAULT_DEVICE_NAME "Procédure complexe"
+#define DEFAULT_DEVICE_NAME "Cool device v2"
 
 uint64_t millis64() {
     static uint32_t low32, high32;

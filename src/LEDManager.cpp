@@ -2,14 +2,26 @@
 
 #include "../include/LEDManager.hpp"
 
+void hue_to_rgb(float hue, uint8_t *r, uint8_t *g, uint8_t *b) {
+    float s = 1.0f, v = 1.0f;  // Full saturation and value
+    int i = floor(hue * 6);
+    float f = hue * 6 - i;
+    float p = v * (1 - s);
+    float q = v * (1 - f * s);
+    float t = v * (1 - (1 - f) * s);
+
+    switch(i % 6) {
+        case 0: *r = v * 255; *g = t * 255; *b = p * 255; break;
+        case 1: *r = q * 255; *g = v * 255; *b = p * 255; break;
+        case 2: *r = p * 255; *g = v * 255; *b = t * 255; break;
+        case 3: *r = p * 255; *g = q * 255; *b = v * 255; break;
+        case 4: *r = t * 255; *g = p * 255; *b = v * 255; break;
+        case 5: *r = v * 255; *g = p * 255; *b = q * 255; break;
+    }
+}
+
 uint8_t shape[LEDManager::HEIGHT] = {
-    4,
-    5,
-    6,
-    7,
-    6,
-    5,
-    4,
+    21,
 };
 
 LEDManager::LEDManager()
@@ -37,10 +49,10 @@ void LEDManager::fill(const Color& color) {
 
 void LEDManager::displayDistance(int distance) {
     if (distance <= 400) {
-        uint8_t radius = 4 - distance / 100;
-        if (radius != m_previousRadius) {
+        size_t line_length = 1 + ((400 - distance) / 400) * 20;
+        if (distance != m_previousLineLength) {
             for (uint8_t i = 0; i < 2; i++) {
-                circle(radius);
+                line(line_length);
                 m_pixels.show();
                 delay(100);
                 turnOff();
@@ -48,42 +60,23 @@ void LEDManager::displayDistance(int distance) {
                 delay(100);
             }
         }
-        circle(radius);
+        line(line_length);
         m_pixels.show();
-        m_previousRadius = radius;
+        m_previousLineLength = line_length;
     } else {
         turnOff();
-        m_previousRadius = 0;
+        m_previousLineLength = 0;
     }
 }
 
 void LEDManager::rainbow(int offset) {
-    for (size_t x = 0; x < LEDManager::HEIGHT; x++) {
-        int xOffset = (x + offset) % LEDManager::HEIGHT;
-        for (size_t y = 0; y < shape[xOffset]; y++) {
-            switch (x) {
-                case 0:
-                    m_pixels.setPixelColor(getLedIndex(xOffset, y), 255, 0, 0);
-                    break;
-                case 1:
-                    m_pixels.setPixelColor(getLedIndex(xOffset, y), 255, 127, 0);
-                    break;
-                case 2:
-                    m_pixels.setPixelColor(getLedIndex(xOffset, y), 255, 255, 0);
-                    break;
-                case 3:
-                    m_pixels.setPixelColor(getLedIndex(xOffset, y), 0, 255, 0);
-                    break;
-                case 4:
-                    m_pixels.setPixelColor(getLedIndex(xOffset, y), 0, 0, 255);
-                    break;
-                case 5:
-                    m_pixels.setPixelColor(getLedIndex(xOffset, y), 75, 0, 130);
-                    break;
-                default:
-                    m_pixels.setPixelColor(getLedIndex(xOffset, y), 148, 0, 211);
-                    break;
-            }
+    for (int y = 0; y < LEDManager::HEIGHT; y++) {
+        for (int x = 0; x < shape[y]; x++) {
+            int xOffset = (x + offset) % shape[y];
+            float hue = fmod(((float) x / shape[y]) + offset, 1.0f);
+            uint8_t r, g, b;
+            hue_to_rgb(hue, &r, &g, &b);
+            m_pixels.setPixelColor(getLedIndex(xOffset, y), r, g, b);
         }
     }
 
@@ -91,23 +84,20 @@ void LEDManager::rainbow(int offset) {
 }
 
 size_t LEDManager::getLedIndex(size_t x, size_t y) const {
-    size_t result = 0;
-    for (size_t row = x + 1; row < LEDManager::HEIGHT; row++) {
-        result += shape[row];
-    }
-    return result + shape[x] - y - 1;
+    if (y >= LEDManager::HEIGHT || x >= shape[y])
+        return 0;
+    return y * shape[y] + x;
 }
 
-void LEDManager::circle(uint8_t radius) {
-    if (radius == 0) {
+void LEDManager::line(size_t length) {
+    if (length == 0) {
         for (size_t i = 0; i < LEDManager::NUM_LED; i++) {
             m_pixels.setPixelColor(i, 0, 0, 0);
         }
     } else {
-        uint8_t outerRadius = 4 - radius;
         for (size_t x = 0; x < LEDManager::HEIGHT; x++) {
             for (size_t y = 0; y < shape[x]; y++) {
-                if (x >= outerRadius && x < LEDManager::HEIGHT - outerRadius && y >= outerRadius && y < shape[x] - outerRadius) {
+                if (x < length) {
                     m_pixels.setPixelColor(getLedIndex(x, y), m_currentColor.r, m_currentColor.g, m_currentColor.b);
                 } else {
                     m_pixels.setPixelColor(getLedIndex(x, y), 0, 0, 0);
