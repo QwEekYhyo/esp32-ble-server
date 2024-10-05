@@ -1,3 +1,4 @@
+#include <cmath>
 #include <cstdint>
 
 #include "../include/LEDManager.hpp"
@@ -49,18 +50,8 @@ void LEDManager::fill(const Color& color) {
 
 void LEDManager::displayDistance(int distance) {
     if (distance <= 400) {
-        size_t line_length = 1 + ((400 - distance) / 400) * 20;
-        if (distance != m_previousLineLength) {
-            for (uint8_t i = 0; i < 2; i++) {
-                line(line_length);
-                delay(100);
-                turnOff();
-                m_pixels.show();
-                delay(100);
-            }
-        }
+        uint8_t line_length = 1 + ((400 - distance) / 400.0) * 20.0;
         line(line_length);
-        m_previousLineLength = line_length;
     } else {
         turnOff();
         m_previousLineLength = 0;
@@ -87,14 +78,14 @@ size_t LEDManager::getLedIndex(size_t x, size_t y) const {
     return y * shape[y] + x;
 }
 
-void LEDManager::line(size_t length) {
+void LEDManager::line(uint8_t length) {
     if (length == 0) {
-        for (size_t i = 0; i < LEDManager::NUM_LED; i++) {
+        for (uint8_t i = 0; i < LEDManager::NUM_LED; i++) {
             m_pixels.setPixelColor(i, 0, 0, 0);
         }
     } else {
-        for (size_t y = 0; y < LEDManager::HEIGHT; y++) {
-            for (size_t x = 0; x < shape[y]; x++) {
+        for (uint8_t y = 0; y < LEDManager::HEIGHT; y++) {
+            for (uint8_t x = 0; x < shape[y]; x++) {
                 if (x < length) {
                     m_pixels.setPixelColor(getLedIndex(x, y), m_currentColor.r, m_currentColor.g, m_currentColor.b);
                 } else {

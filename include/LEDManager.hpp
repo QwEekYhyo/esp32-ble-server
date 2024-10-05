@@ -18,7 +18,7 @@ public:
     /* Hardware Dependent */
     void rainbow(int offset);
     /* Hardware Dependent */
-    void line(size_t length);
+    void line(uint8_t length);
 
     void setBrightness(uint8_t brightness);
     void setColor(const char* stringColor);
