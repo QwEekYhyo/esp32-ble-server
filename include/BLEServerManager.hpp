@@ -11,11 +11,14 @@ public:
     BLEServerManager(const char* name);
 
     void addCharacteristic(const char* name, const char* defaultValue, BLECharacteristicCallbacks* callbacks);
+    void addBrightnessCharacteristic(const char* defaultValue, BLECharacteristicCallbacks* callbacks);
+    uint8_t getCurrentBrightness() const;
     void start();
 
 private:
     BLEServer* m_server;
     BLEService* m_service;
+    BLECharacteristic* m_brightness;
 
     class ServerCallBacks : public BLEServerCallbacks {
         void onConnect(BLEServer* pServer) {}

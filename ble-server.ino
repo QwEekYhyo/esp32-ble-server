@@ -23,6 +23,7 @@ bool isBrightnessChanging = false;
 bool wasPreviouslyCharging = false;
 int animOffset = 0;
 LEDManager ledManager;
+BLEServerManager* server;
 
 class NameCallbacks : public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic* pCharacteristic) {
@@ -64,16 +65,16 @@ void setup() {
     Wire.begin(13,12);
     ledManager.turnOff();
 
-    BLEServerManager server(DEFAULT_DEVICE_NAME);
+    server = new BLEServerManager(DEFAULT_DEVICE_NAME);
 
-    server.addCharacteristic("Name", DEFAULT_DEVICE_NAME, new NameCallbacks());
+    server->addCharacteristic("Name", DEFAULT_DEVICE_NAME, new NameCallbacks());
     char colorString[7];
-    server.addCharacteristic("Color", ledManager.getColor().toString(colorString), new ColorCallbacks());
-    server.addCharacteristic("Brightness", "50", new BrightnessCallbacks());
+    server->addCharacteristic("Color", ledManager.getColor().toString(colorString), new ColorCallbacks());
+    server->addBrightnessCharacteristic("50", new BrightnessCallbacks());
     ledManager.setBrightness(50);
-    server.addCharacteristic("Distance", "0", new DistanceCallbacks());
+    server->addCharacteristic("Distance", "0", new DistanceCallbacks());
 
-    server.start();
+    server->start();
 }
 
 uint8_t iterationCounter = 0;
@@ -114,6 +115,7 @@ void loop() {
         if (!wasPreviouslyCharging) {
             wasPreviouslyCharging = true;
             ledManager.setColor("00FF00");
+            ledManager.setBrightness(10);
         }
         size_t line_length = (size_t) map_cool(voltage, 3.0, 4.2, 1.0, 21.0);
         iterationCounter++;
@@ -127,6 +129,7 @@ void loop() {
         if (wasPreviouslyCharging) {
             wasPreviouslyCharging = false;
             ledManager.turnOff();
+            ledManager.setBrightness(server->getCurrentBrightness());
         }
         if (isBrightnessChanging) {
             iterationCounter++;

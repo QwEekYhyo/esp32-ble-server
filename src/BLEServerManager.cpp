@@ -36,6 +36,34 @@ void BLEServerManager::addCharacteristic(const char* name, const char* defaultVa
     newCharacteristic->addDescriptor(newDescriptor);
 }
 
+void BLEServerManager::addBrightnessCharacteristic(const char* defaultValue, BLECharacteristicCallbacks* callbacks) {
+    // Create characteristic in service
+    uint8_t buffer[16];
+    generate_uuid(buffer, &esp_fill_random, esp_bt_dev_get_address());
+    BLEUUID characteristicUUID(buffer, 16, true);
+    m_brightness = m_service->createCharacteristic(
+                                           characteristicUUID,
+                                           BLECharacteristic::PROPERTY_READ |
+                                           BLECharacteristic::PROPERTY_WRITE
+                                         );
+    m_brightness->setCallbacks(callbacks);
+    m_brightness->setValue(defaultValue);
+    // Add a descriptor to the characteristic
+    generate_uuid(buffer, &esp_fill_random, esp_bt_dev_get_address());
+    BLEUUID descriptorUUID(buffer, 16, true);
+    BLEDescriptor* newDescriptor = new BLEDescriptor(descriptorUUID);
+    newDescriptor->setAccessPermissions(ESP_GATT_PERM_READ);
+    newDescriptor->setValue("Brightness");
+    m_brightness->addDescriptor(newDescriptor);
+}
+
+uint8_t BLEServerManager::getCurrentBrightness() const {
+    int value = m_brightness->getValue().toInt();
+    if (value <= 0) value = 1;
+    else if (value > 255) value = 255;
+    return value;
+}
+
 void BLEServerManager::start() {
     m_service->start();
     m_server->startAdvertising();
