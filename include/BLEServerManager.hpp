@@ -1,9 +1,8 @@
 #ifndef BLE_SERVER_MANAGER_HPP
 #define BLE_SERVER_MANAGER_HPP
 
-// #define DEBUG_MODE
-
 #include <Arduino.h>
+#include <cstdint>
 #include "BLEServer.h"
 #include "BLEDevice.h"
 
@@ -19,16 +18,9 @@ private:
     BLEService* m_service;
 
     class ServerCallBacks : public BLEServerCallbacks {
-        void onConnect(BLEServer* pServer) {
-#ifdef DEBUG_MODE
-            Serial.println("Someone connected to us!");
-#endif
-        }
+        void onConnect(BLEServer* pServer) {}
 
         void onDisconnect(BLEServer* pServer) {
-#ifdef DEBUG_MODE
-            Serial.println("Someone disconnected :(");
-#endif
             pServer->startAdvertising();
         }
     };

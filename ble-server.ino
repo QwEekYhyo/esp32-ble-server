@@ -27,12 +27,8 @@ LEDManager ledManager;
 class NameCallbacks : public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic* pCharacteristic) {
         String value = pCharacteristic->getValue();
-        if (value.length() > 0) {
+        if (value.length() > 0)
             esp_ble_gap_set_device_name(value.c_str());
-#ifdef DEBUG_MODE
-            Serial.println("Changed device name");
-#endif
-        }
     }
 };
 
@@ -60,26 +56,11 @@ class DistanceCallbacks : public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic* pCharacteristic) {
         int value = pCharacteristic->getValue().toInt();
         ledManager.displayDistance(value);
-
-#ifdef DEBUG_MODE
-        String stringValue = pCharacteristic->getValue();
-        if (stringValue.length() > 0) {
-            Serial.println("*********");
-            Serial.print("New value: ");
-            for (int i = 0; i < stringValue.length(); i++)
-                Serial.print(stringValue[i]);
-            Serial.println();
-            Serial.println("*********");
-        }
-#endif
     }
 };
 
 void setup() {
     // Arduino specific soy dev things
-#ifdef DEBUG_MODE
-    Serial.begin(9600);
-#endif
     Wire.begin(13,12);
     ledManager.turnOff();
 
@@ -144,8 +125,8 @@ void loop() {
         delay(20);
     } else {
         if (wasPreviouslyCharging) {
-            ledManager.turnOff();
             wasPreviouslyCharging = false;
+            ledManager.turnOff();
         }
         if (isBrightnessChanging) {
             iterationCounter++;
