@@ -68,3 +68,8 @@ void BLEServerManager::start() {
     m_service->start();
     m_server->startAdvertising();
 }
+
+void BLEServerManager::stop() {
+    m_service->stop();
+    BLEDevice::stopAdvertising();
+}

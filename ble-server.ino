@@ -82,6 +82,7 @@ void loop() {
             wasPreviouslyCharging = true;
             LEDManager::instance.setColor("00FF00");
             LEDManager::instance.setBrightness(10);
+            server->stop();
         }
         size_t line_length = (size_t) map_cool(voltage, 3.0, 4.2, 1.0, 21.0);
         iterationCounter++;
@@ -96,6 +97,7 @@ void loop() {
             wasPreviouslyCharging = false;
             LEDManager::instance.turnOff();
             LEDManager::instance.setBrightness(server->getCurrentBrightness());
+            server->start();
         }
         if (isBrightnessChanging) {
             iterationCounter++;

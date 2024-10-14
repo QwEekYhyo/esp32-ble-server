@@ -14,6 +14,7 @@ public:
     void addBrightnessCharacteristic(const char* defaultValue, BLECharacteristicCallbacks* callbacks);
     uint8_t getCurrentBrightness() const;
     void start();
+    void stop();
 
 private:
     BLEServer* m_server;
