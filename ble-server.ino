@@ -53,8 +53,7 @@ void setup() {
 
 uint8_t iterationCounter = 0;
 int16_t V;
-int16_t I;
-double current, voltage;
+double voltage;
 
 void loop() {
     Wire.beginTransmission(0x70);
@@ -63,29 +62,15 @@ void loop() {
     Wire.endTransmission();
 
     Wire.beginTransmission(0x70);
-    Wire.write(6);
-    Wire.endTransmission();
-    Wire.requestFrom(0x70, 2);
-    I = Wire.read() | (Wire.read() << 8);
-
-    Wire.beginTransmission(0x70);
     Wire.write(8);
     Wire.endTransmission();
     Wire.requestFrom(0x70,2);
     V = Wire.read() | (Wire.read() << 8);
 
-    if (I & 0b0010000000000000) {
-        I = (~I);
-        I = I + 0b1;
-        I = I & 0b0011111111111111;
-        I = I + 1;
-        I = -I;
-    }
-
-    current = (float(I) * 0.00001177) / 0.030;
     voltage = float(V) * 0.00244;
 
-    if (current >= 0) {
+    if (!digitalRead(10)) {
+        /* Battery is charging */
         if (!wasPreviouslyCharging) {
             wasPreviouslyCharging = true;
             LEDManager::instance.setColor("00FF00");
@@ -101,6 +86,7 @@ void loop() {
         LEDManager::instance.line(animOffset % 2 == 0 ? line_length : line_length - 1);
         delay(20);
     } else {
+        /* Battery is not charging */
         if (wasPreviouslyCharging) {
             wasPreviouslyCharging = false;
             LEDManager::instance.turnOff();
