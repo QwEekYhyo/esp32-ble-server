@@ -122,4 +122,13 @@ void loop() {
             }
         }
     }
+
+    // Power button is pressed to turn off device
+    if (!digitalRead(11)) {
+        LEDManager::instance.turnOff();
+        LEDManager::instance.fillWithDelay(Color(100, 0, 0), 80);
+        LEDManager::instance.turnOff();
+        esp_sleep_enable_ext1_wakeup_io(bitmask, ESP_EXT1_WAKEUP_ANY_LOW);
+        esp_deep_sleep_start();
+    }
 }
