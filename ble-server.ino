@@ -7,6 +7,8 @@
 #include "include/utils.hpp"
 
 #define DEFAULT_DEVICE_NAME "Cool device v2"
+#define BUTTON_PIN_BITMASK(GPIO) (1ULL << GPIO)  
+uint64_t bitmask = (BUTTON_PIN_BITMASK(GPIO_NUM_10) | BUTTON_PIN_BITMASK(GPIO_NUM_11));
 
 uint64_t lastBrightnessChange = 0;
 bool isBrightnessChanging = false;
@@ -27,8 +29,14 @@ class BrightnessCallbacks : public BLECharacteristicCallbacks {
 };
 
 void setup() {
-    // Arduino specific soy dev things
-    Wire.begin(13,12);
+    // I2C pins
+    Wire.begin(13, 12);
+    // Charger pin (to check if battery is charging)
+    pinMode(10, INPUT);
+    // Power button (to enable/disable deep sleep)
+    pinMode(11, INPUT);
+    LEDManager::instance.turnOff();
+    LEDManager::instance.fillWithDelay(Color(0, 10, 0), 80);
     LEDManager::instance.turnOff();
 
     server = new BLEServerManager(DEFAULT_DEVICE_NAME);

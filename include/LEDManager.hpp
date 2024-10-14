@@ -18,6 +18,7 @@ public:
     void turnOff();
     void fill();
     void fill(const Color& color);
+    void fillWithDelay(const Color& color, size_t delay);
     void displayDistance(int distance);
     /* Hardware Dependent */
     void rainbow(int offset);
