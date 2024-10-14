@@ -3,43 +3,16 @@
 
 #include "include/BLEServerManager.hpp"
 #include "include/LEDManager.hpp"
+#include "include/callbacks.hpp"
+#include "include/utils.hpp"
 
 #define DEFAULT_DEVICE_NAME "Cool device v2"
-
-float map_cool(float x, float in_min, float in_max, float out_min, float out_max) {
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
-uint64_t millis64() {
-    static uint32_t low32, high32;
-    uint32_t new_low32 = millis();
-    if (new_low32 < low32) high32++;
-    low32 = new_low32;
-    return (uint64_t) high32 << 32 | low32;
-}
 
 uint64_t lastBrightnessChange = 0;
 bool isBrightnessChanging = false;
 bool wasPreviouslyCharging = false;
 int animOffset = 0;
-LEDManager ledManager;
 BLEServerManager* server;
-
-class NameCallbacks : public BLECharacteristicCallbacks {
-    void onWrite(BLECharacteristic* pCharacteristic) {
-        String value = pCharacteristic->getValue();
-        if (value.length() > 0)
-            esp_ble_gap_set_device_name(value.c_str());
-    }
-};
-
-class ColorCallbacks : public BLECharacteristicCallbacks {
-    void onWrite(BLECharacteristic* pCharacteristic) {
-        String colorString = pCharacteristic->getValue();
-        if (colorString.length() == 6)
-            ledManager.setColor(colorString.c_str());
-    }
-};
 
 class BrightnessCallbacks : public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic* pCharacteristic) {
@@ -47,31 +20,24 @@ class BrightnessCallbacks : public BLECharacteristicCallbacks {
         if (value <= 0) value = 1;
         else if (value > 255) value = 255;
 
-        ledManager.setBrightness(value);
+        LEDManager::instance.setBrightness(value);
         isBrightnessChanging = true;
         lastBrightnessChange = millis64();
-    }
-};
-
-class DistanceCallbacks : public BLECharacteristicCallbacks {
-    void onWrite(BLECharacteristic* pCharacteristic) {
-        int value = pCharacteristic->getValue().toInt();
-        ledManager.displayDistance(value);
     }
 };
 
 void setup() {
     // Arduino specific soy dev things
     Wire.begin(13,12);
-    ledManager.turnOff();
+    LEDManager::instance.turnOff();
 
     server = new BLEServerManager(DEFAULT_DEVICE_NAME);
 
     server->addCharacteristic("Name", DEFAULT_DEVICE_NAME, new NameCallbacks());
     char colorString[7];
-    server->addCharacteristic("Color", ledManager.getColor().toString(colorString), new ColorCallbacks());
+    server->addCharacteristic("Color", LEDManager::instance.getColor().toString(colorString), new ColorCallbacks());
     server->addBrightnessCharacteristic("50", new BrightnessCallbacks());
-    ledManager.setBrightness(50);
+    LEDManager::instance.setBrightness(50);
     server->addCharacteristic("Distance", "0", new DistanceCallbacks());
 
     server->start();
@@ -114,8 +80,8 @@ void loop() {
     if (current >= 0) {
         if (!wasPreviouslyCharging) {
             wasPreviouslyCharging = true;
-            ledManager.setColor("00FF00");
-            ledManager.setBrightness(10);
+            LEDManager::instance.setColor("00FF00");
+            LEDManager::instance.setBrightness(10);
         }
         size_t line_length = (size_t) map_cool(voltage, 3.0, 4.2, 1.0, 21.0);
         iterationCounter++;
@@ -123,13 +89,13 @@ void loop() {
             animOffset++;
             iterationCounter = 0;
         }
-        ledManager.line(animOffset % 2 == 0 ? line_length : line_length - 1);
+        LEDManager::instance.line(animOffset % 2 == 0 ? line_length : line_length - 1);
         delay(20);
     } else {
         if (wasPreviouslyCharging) {
             wasPreviouslyCharging = false;
-            ledManager.turnOff();
-            ledManager.setBrightness(server->getCurrentBrightness());
+            LEDManager::instance.turnOff();
+            LEDManager::instance.setBrightness(server->getCurrentBrightness());
         }
         if (isBrightnessChanging) {
             iterationCounter++;
@@ -137,11 +103,11 @@ void loop() {
                 animOffset++;
                 iterationCounter = 0;
             }
-            ledManager.rainbow(animOffset);
+            LEDManager::instance.rainbow(animOffset);
             delay(20);
             if (millis64() - lastBrightnessChange >= 1500) {
                 isBrightnessChanging = false;
-                ledManager.turnOff();
+                LEDManager::instance.turnOff();
                 animOffset = 0;
             }
         }

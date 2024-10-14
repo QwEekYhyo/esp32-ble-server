@@ -1,3 +1,6 @@
+#ifndef LED_MANAGER_HPP
+#define LED_MANAGER_HPP
+
 #include <Adafruit_NeoPixel.h>
 #include <cstddef>
 #include <cstdint>
@@ -8,6 +11,7 @@ class LEDManager {
 public:
     /* Hardware Dependent */
     static constexpr uint8_t HEIGHT{1};
+    static LEDManager instance;
 
     LEDManager();
 
@@ -38,3 +42,5 @@ private:
     size_t getLedIndex(size_t x, size_t y) const;
 
 };
+
+#endif

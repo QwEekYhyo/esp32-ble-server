@@ -1,5 +1,6 @@
 #include "../include/utils.hpp"
 #include <cstdio>
+#include <Arduino.h>
 
 #define UUID_BYTES 16
 #define UUID_CHARS (UUID_BYTES * 2) + 4
@@ -56,3 +57,15 @@ const char* generate_formatted_uuid(uint8_t* uuid, std::function<void(void*, siz
     return result;
 }
 #endif
+
+float map_cool(float x, float in_min, float in_max, float out_min, float out_max) {
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+uint64_t millis64() {
+    static uint32_t low32, high32;
+    uint32_t new_low32 = millis();
+    if (new_low32 < low32) high32++;
+    low32 = new_low32;
+    return (uint64_t) high32 << 32 | low32;
+}
