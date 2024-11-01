@@ -11,6 +11,8 @@ class LEDManager {
 public:
     /* Hardware Dependent */
     static constexpr uint8_t HEIGHT{1};
+    /* Hardware Dependent */
+    static constexpr uint8_t NUM_LED{21};
     static LEDManager instance;
 
     LEDManager();
@@ -19,6 +21,7 @@ public:
     void fill();
     void fill(const Color& color);
     void fillWithDelay(const Color& color, size_t delay);
+    void emptyWithDelay(size_t delay, uint8_t index);
     void displayDistance(int distance);
     /* Hardware Dependent */
     void rainbow(int offset);
@@ -32,8 +35,6 @@ public:
 private:
     /* Hardware Dependent */
     static constexpr uint8_t LED_PIN{5};
-    /* Hardware Dependent */
-    static constexpr uint8_t NUM_LED{21};
 
     Adafruit_NeoPixel m_pixels;
     Color m_currentColor;

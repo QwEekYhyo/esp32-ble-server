@@ -58,6 +58,14 @@ void LEDManager::fillWithDelay(const Color& color, size_t millis) {
     }
 }
 
+void LEDManager::emptyWithDelay(size_t millis, uint8_t index) {
+    for (uint8_t pixel = LEDManager::NUM_LED - 1; pixel >= index; pixel--) {
+        m_pixels.setPixelColor(pixel, 0, 0, 0);
+        m_pixels.show();
+        delay(millis);
+    }
+}
+
 void LEDManager::displayDistance(int distance) {
     if (distance <= 400) {
         uint8_t line_length = 1 + ((400 - distance) / 400.0) * 20.0;

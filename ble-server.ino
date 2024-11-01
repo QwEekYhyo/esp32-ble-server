@@ -36,8 +36,6 @@ void setup() {
     // Power button (to enable/disable deep sleep)
     pinMode(11, INPUT);
     LEDManager::instance.turnOff();
-    LEDManager::instance.fillWithDelay(Color(0, 10, 0), 80);
-    LEDManager::instance.turnOff();
 
     server = new BLEServerManager(DEFAULT_DEVICE_NAME);
 
@@ -45,10 +43,13 @@ void setup() {
     char colorString[7];
     server->addCharacteristic("Color", LEDManager::instance.getColor().toString(colorString), new ColorCallbacks());
     server->addBrightnessCharacteristic("50", new BrightnessCallbacks());
-    LEDManager::instance.setBrightness(50);
     server->addCharacteristic("Distance", "0", new DistanceCallbacks());
 
     server->start();
+
+    LEDManager::instance.fillWithDelay(Color(0, 10, 0), 80);
+    LEDManager::instance.setBrightness(50);
+    LEDManager::instance.turnOff();
 }
 
 uint8_t iterationCounter = 0;
@@ -71,13 +72,15 @@ void loop() {
 
     if (!digitalRead(10)) {
         /* Battery is charging */
+        size_t line_length = (size_t) map_cool(voltage, 3.0, 4.2, 1.0, LEDManager::NUM_LED);
         if (!wasPreviouslyCharging) {
             wasPreviouslyCharging = true;
             LEDManager::instance.setColor("00FF00");
             LEDManager::instance.setBrightness(10);
+            LEDManager::instance.line(LEDManager::NUM_LED);
+            LEDManager::instance.emptyWithDelay(80, line_length);
             server->stop();
         }
-        size_t line_length = (size_t) map_cool(voltage, 3.0, 4.2, 1.0, 21.0);
         iterationCounter++;
         if (iterationCounter >= 25) {
             animOffset++;
