@@ -15,7 +15,7 @@ BLEServerManager::BLEServerManager(const char* name) {
     m_service = m_server->createService(serviceUUID);
 }
 
-void BLEServerManager::addCharacteristic(const char* name, const char* defaultValue, BLECharacteristicCallbacks* callbacks) {
+BLECharacteristic* BLEServerManager::addCharacteristic(const char* name, const char* defaultValue, BLECharacteristicCallbacks* callbacks) {
     // Create characteristic in service
     uint8_t buffer[16];
     generate_uuid(buffer, &esp_fill_random, esp_bt_dev_get_address());
@@ -34,27 +34,12 @@ void BLEServerManager::addCharacteristic(const char* name, const char* defaultVa
     newDescriptor->setAccessPermissions(ESP_GATT_PERM_READ);
     newDescriptor->setValue(name);
     newCharacteristic->addDescriptor(newDescriptor);
+
+    return newCharacteristic;
 }
 
-void BLEServerManager::addBrightnessCharacteristic(const char* defaultValue, BLECharacteristicCallbacks* callbacks) {
-    // Create characteristic in service
-    uint8_t buffer[16];
-    generate_uuid(buffer, &esp_fill_random, esp_bt_dev_get_address());
-    BLEUUID characteristicUUID(buffer, 16, true);
-    m_brightness = m_service->createCharacteristic(
-                                           characteristicUUID,
-                                           BLECharacteristic::PROPERTY_READ |
-                                           BLECharacteristic::PROPERTY_WRITE
-                                         );
-    m_brightness->setCallbacks(callbacks);
-    m_brightness->setValue(defaultValue);
-    // Add a descriptor to the characteristic
-    generate_uuid(buffer, &esp_fill_random, esp_bt_dev_get_address());
-    BLEUUID descriptorUUID(buffer, 16, true);
-    BLEDescriptor* newDescriptor = new BLEDescriptor(descriptorUUID);
-    newDescriptor->setAccessPermissions(ESP_GATT_PERM_READ);
-    newDescriptor->setValue("Brightness");
-    m_brightness->addDescriptor(newDescriptor);
+void BLEServerManager::setBrightnessCharacteristic(BLECharacteristic* characteristic) {
+    m_brightness = characteristic;
 }
 
 uint8_t BLEServerManager::getCurrentBrightness() const {

@@ -42,7 +42,7 @@ void setup() {
     server->addCharacteristic("Name", DEFAULT_DEVICE_NAME, new NameCallbacks());
     char colorString[7];
     server->addCharacteristic("Color", LEDManager::instance.getColor().toString(colorString), new ColorCallbacks());
-    server->addBrightnessCharacteristic("50", new BrightnessCallbacks());
+    server->setBrightnessCharacteristic(server->addCharacteristic("Brightness", "50", new BrightnessCallbacks()));
     server->addCharacteristic("Distance", "0", new DistanceCallbacks());
 
     server->start();
@@ -115,6 +115,7 @@ void loop() {
     // Power button is pressed to turn off device
     if (!digitalRead(11)) {
         LEDManager::instance.turnOff();
+        LEDManager::instance.setBrightness(50);
         LEDManager::instance.fillWithDelay(Color(100, 0, 0), 80);
         LEDManager::instance.turnOff();
         esp_sleep_enable_ext1_wakeup_io(bitmask, ESP_EXT1_WAKEUP_ANY_LOW);

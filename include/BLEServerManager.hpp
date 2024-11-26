@@ -10,8 +10,8 @@ class BLEServerManager {
 public:
     BLEServerManager(const char* name);
 
-    void addCharacteristic(const char* name, const char* defaultValue, BLECharacteristicCallbacks* callbacks);
-    void addBrightnessCharacteristic(const char* defaultValue, BLECharacteristicCallbacks* callbacks);
+    BLECharacteristic* addCharacteristic(const char* name, const char* defaultValue, BLECharacteristicCallbacks* callbacks);
+    void setBrightnessCharacteristic(BLECharacteristic*);
     uint8_t getCurrentBrightness() const;
     void start();
     void stop();
