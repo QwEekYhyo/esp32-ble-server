@@ -115,6 +115,7 @@ void loop() {
     // Power button is pressed to turn off device
     if (!digitalRead(11)) {
         LEDManager::instance.turnOff();
+        server->stop();
         LEDManager::instance.setBrightness(50);
         LEDManager::instance.fillWithDelay(Color(100, 0, 0), 80);
         LEDManager::instance.turnOff();
