@@ -15,26 +15,25 @@ BLEServerManager::BLEServerManager(const char* name) {
     m_service = m_server->createService(serviceUUID);
 }
 
-BLECharacteristic* BLEServerManager::addCharacteristic(const char* name, const char* defaultValue, BLECharacteristicCallbacks* callbacks) {
+BLECharacteristic* BLEServerManager::addCharacteristic(const char* UUID, const char* defaultValue, BLECharacteristicCallbacks* callbacks) {
     // Create characteristic in service
-    uint8_t buffer[16];
-    generate_uuid(buffer, &esp_fill_random, esp_bt_dev_get_address());
-    BLEUUID characteristicUUID(buffer, 16, true);
     BLECharacteristic* newCharacteristic = m_service->createCharacteristic(
-                                           characteristicUUID,
+                                           UUID,
                                            BLECharacteristic::PROPERTY_READ |
                                            BLECharacteristic::PROPERTY_WRITE
                                          );
     newCharacteristic->setCallbacks(callbacks);
     newCharacteristic->setValue(defaultValue);
-    // Add a descriptor to the characteristic
-    generate_uuid(buffer, &esp_fill_random, esp_bt_dev_get_address());
-    BLEUUID descriptorUUID(buffer, 16, true);
-    BLEDescriptor* newDescriptor = new BLEDescriptor(descriptorUUID);
-    newDescriptor->setAccessPermissions(ESP_GATT_PERM_READ);
-    newDescriptor->setValue(name);
-    newCharacteristic->addDescriptor(newDescriptor);
+    return newCharacteristic;
+}
 
+BLECharacteristic* BLEServerManager::addReadOnlyCharacteristic(const char* UUID, const char* defaultValue) {
+    // Create characteristic in service
+    BLECharacteristic* newCharacteristic = m_service->createCharacteristic(
+                                           UUID,
+                                           BLECharacteristic::PROPERTY_READ
+                                         );
+    newCharacteristic->setValue(defaultValue);
     return newCharacteristic;
 }
 
@@ -42,11 +41,21 @@ void BLEServerManager::setBrightnessCharacteristic(BLECharacteristic* characteri
     m_brightness = characteristic;
 }
 
+void BLEServerManager::setBatteryCharacteristic(BLECharacteristic* characteristic) {
+    m_battery = characteristic;
+}
+
 uint8_t BLEServerManager::getCurrentBrightness() const {
     int value = m_brightness->getValue().toInt();
     if (value <= 0) value = 1;
     else if (value > 255) value = 255;
     return value;
+}
+
+void BLEServerManager::setCurrentBattery(double currentVoltage) {
+    currentVoltage = map_cool(currentVoltage, 3.0, 4.2, 0, 100);
+    int batteryPercentage = floor(currentVoltage);
+    m_battery->setValue(String(batteryPercentage));
 }
 
 void BLEServerManager::start() {
