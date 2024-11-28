@@ -20,18 +20,6 @@ bool isBrightnessChanging = false;
 bool wasPreviouslyCharging = false;
 int animOffset = 0;
 
-class BrightnessCallbacks : public BLECharacteristicCallbacks {
-    void onWrite(BLECharacteristic* pCharacteristic) {
-        int value = pCharacteristic->getValue().toInt();
-        if (value <= 0) value = 1;
-        else if (value > 255) value = 255;
-
-        LEDManager::instance().setBrightness(value);
-        isBrightnessChanging = true;
-        lastBrightnessChange = millis64();
-    }
-};
-
 void setup() {
     BLEServerManager* server = BLEServerManager::instance();
     LEDManager& ledManager = LEDManager::instance();
