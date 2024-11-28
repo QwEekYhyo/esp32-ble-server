@@ -7,6 +7,12 @@
 #include "include/utils.hpp"
 
 #define DEFAULT_DEVICE_NAME "Cool device v2"
+#define BATTERY_UUID    "11111111-1111-1111-1111-111111111111"
+#define BRIGHTNESS_UUID "22222222-2222-2222-2222-222222222222"
+#define COLOR_UUID      "33333333-3333-3333-3333-333333333333"
+#define DISTANCE_UUID   "44444444-4444-4444-4444-444444444444"
+#define NAME_UUID       "55555555-5555-5555-5555-555555555555"
+
 #define BUTTON_PIN_BITMASK(GPIO) (1ULL << GPIO)  
 uint64_t bitmask = (BUTTON_PIN_BITMASK(GPIO_NUM_10) | BUTTON_PIN_BITMASK(GPIO_NUM_11));
 
@@ -39,11 +45,12 @@ void setup() {
 
     server = new BLEServerManager(DEFAULT_DEVICE_NAME);
 
-    server->addCharacteristic("Name", DEFAULT_DEVICE_NAME, new NameCallbacks());
+    server->addCharacteristic(NAME_UUID, DEFAULT_DEVICE_NAME, new NameCallbacks());
     char colorString[7];
-    server->addCharacteristic("Color", LEDManager::instance.getColor().toString(colorString), new ColorCallbacks());
-    server->setBrightnessCharacteristic(server->addCharacteristic("Brightness", "50", new BrightnessCallbacks()));
-    server->addCharacteristic("Distance", "0", new DistanceCallbacks());
+    server->addCharacteristic(COLOR_UUID, LEDManager::instance.getColor().toString(colorString), new ColorCallbacks());
+    server->addCharacteristic(DISTANCE_UUID, "0", new DistanceCallbacks());
+    server->setBrightnessCharacteristic(server->addCharacteristic(BRIGHTNESS_UUID, "50", new BrightnessCallbacks()));
+    server->setBatteryCharacteristic(server->addReadOnlyCharacteristic(BATTERY_UUID, "0"));
 
     server->start();
 
@@ -69,6 +76,8 @@ void loop() {
     V = Wire.read() | (Wire.read() << 8);
 
     voltage = float(V) * 0.00244;
+    if (iterationCounter % 10 == 0)
+        server->setCurrentBattery(voltage);
 
     if (!digitalRead(10)) {
         /* Battery is charging */
