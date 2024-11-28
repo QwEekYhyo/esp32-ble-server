@@ -13,9 +13,8 @@ public:
     static constexpr uint8_t HEIGHT{1};
     /* Hardware Dependent */
     static constexpr uint8_t NUM_LED{21};
-    static LEDManager instance;
 
-    LEDManager();
+    static LEDManager& instance();
 
     void turnOff();
     void fill();
@@ -35,6 +34,8 @@ public:
 private:
     /* Hardware Dependent */
     static constexpr uint8_t LED_PIN{5};
+
+    LEDManager();
 
     Adafruit_NeoPixel m_pixels;
     Color m_currentColor;

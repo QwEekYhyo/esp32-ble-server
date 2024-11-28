@@ -18,14 +18,14 @@ class ColorCallbacks : public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic* pCharacteristic) {
         String colorString = pCharacteristic->getValue();
         if (colorString.length() == 6)
-            LEDManager::instance.setColor(colorString.c_str());
+            LEDManager::instance().setColor(colorString.c_str());
     }
 };
 
 class DistanceCallbacks : public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic* pCharacteristic) {
         int value = pCharacteristic->getValue().toInt();
-        LEDManager::instance.displayDistance(value);
+        LEDManager::instance().displayDistance(value);
     }
 };
 

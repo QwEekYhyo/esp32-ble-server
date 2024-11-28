@@ -3,7 +3,10 @@
 
 #include "../include/LEDManager.hpp"
 
-LEDManager LEDManager::instance;
+LEDManager& LEDManager::instance() {
+    static LEDManager INSTANCE;
+    return INSTANCE;
+}
 
 void hue_to_rgb(float hue, uint8_t *r, uint8_t *g, uint8_t *b) {
     float s = 1.0f, v = 1.0f;  // Full saturation and value

@@ -26,35 +26,35 @@ class BrightnessCallbacks : public BLECharacteristicCallbacks {
         if (value <= 0) value = 1;
         else if (value > 255) value = 255;
 
-        LEDManager::instance.setBrightness(value);
+        LEDManager::instance().setBrightness(value);
         isBrightnessChanging = true;
         lastBrightnessChange = millis64();
     }
 };
 
 void setup() {
+    BLEServerManager* server = BLEServerManager::instance();
+    LEDManager& ledManager = LEDManager::instance();
     // I2C pins
     Wire.begin(13, 12);
     // Charger pin (to check if battery is charging)
     pinMode(10, INPUT);
     // Power button (to enable/disable deep sleep)
     pinMode(11, INPUT);
-    LEDManager::instance.turnOff();
-
-    BLEServerManager* server = BLEServerManager::instance();
+    ledManager.turnOff();
 
     server->addCharacteristic(NAME_UUID, DEFAULT_DEVICE_NAME, new NameCallbacks());
     char colorString[7];
-    server->addCharacteristic(COLOR_UUID, LEDManager::instance.getColor().toString(colorString), new ColorCallbacks());
+    server->addCharacteristic(COLOR_UUID, ledManager.getColor().toString(colorString), new ColorCallbacks());
     server->addCharacteristic(DISTANCE_UUID, "0", new DistanceCallbacks());
     server->setBrightnessCharacteristic(server->addCharacteristic(BRIGHTNESS_UUID, "50", new BrightnessCallbacks()));
     server->setBatteryCharacteristic(server->addReadOnlyCharacteristic(BATTERY_UUID, "0"));
 
     server->start();
 
-    LEDManager::instance.fillWithDelay(Color(0, 10, 0), 80);
-    LEDManager::instance.setBrightness(50);
-    LEDManager::instance.turnOff();
+    ledManager.fillWithDelay(Color(0, 10, 0), 80);
+    ledManager.setBrightness(50);
+    ledManager.turnOff();
 }
 
 uint8_t iterationCounter = 0;
@@ -63,6 +63,7 @@ double voltage;
 
 void loop() {
     BLEServerManager* server = BLEServerManager::instance();
+    LEDManager& ledManager = LEDManager::instance();
 
     Wire.beginTransmission(0x70);
     Wire.write(0);
@@ -84,10 +85,10 @@ void loop() {
         size_t line_length = (size_t) map_cool(voltage, 3.0, 4.2, 1.0, LEDManager::NUM_LED);
         if (!wasPreviouslyCharging) {
             wasPreviouslyCharging = true;
-            LEDManager::instance.setColor("00FF00");
-            LEDManager::instance.setBrightness(10);
-            LEDManager::instance.line(LEDManager::NUM_LED);
-            LEDManager::instance.emptyWithDelay(80, line_length);
+            ledManager.setColor("00FF00");
+            ledManager.setBrightness(10);
+            ledManager.line(LEDManager::NUM_LED);
+            ledManager.emptyWithDelay(80, line_length);
             server->stop();
         }
         iterationCounter++;
@@ -95,14 +96,14 @@ void loop() {
             animOffset++;
             iterationCounter = 0;
         }
-        LEDManager::instance.line(animOffset % 2 == 0 ? line_length : line_length - 1);
+        ledManager.line(animOffset % 2 == 0 ? line_length : line_length - 1);
         delay(20);
     } else {
         /* Battery is not charging */
         if (wasPreviouslyCharging) {
             wasPreviouslyCharging = false;
-            LEDManager::instance.turnOff();
-            LEDManager::instance.setBrightness(server->getCurrentBrightness());
+            ledManager.turnOff();
+            ledManager.setBrightness(server->getCurrentBrightness());
             server->start();
         }
         if (isBrightnessChanging) {
@@ -111,11 +112,11 @@ void loop() {
                 animOffset++;
                 iterationCounter = 0;
             }
-            LEDManager::instance.rainbow(animOffset);
+            ledManager.rainbow(animOffset);
             delay(20);
             if (millis64() - lastBrightnessChange >= 1500) {
                 isBrightnessChanging = false;
-                LEDManager::instance.turnOff();
+                ledManager.turnOff();
                 animOffset = 0;
             }
         }
@@ -123,11 +124,11 @@ void loop() {
 
     // Power button is pressed to turn off device
     if (!digitalRead(11)) {
-        LEDManager::instance.turnOff();
+        ledManager.turnOff();
         server->stop();
-        LEDManager::instance.setBrightness(50);
-        LEDManager::instance.fillWithDelay(Color(100, 0, 0), 80);
-        LEDManager::instance.turnOff();
+        ledManager.setBrightness(50);
+        ledManager.fillWithDelay(Color(100, 0, 0), 80);
+        ledManager.turnOff();
         esp_sleep_enable_ext1_wakeup_io(bitmask, ESP_EXT1_WAKEUP_ANY_LOW);
         esp_deep_sleep_start();
     }
