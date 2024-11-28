@@ -65,6 +65,10 @@ void BLEServerManager::setCurrentBattery(double currentVoltage) {
     m_battery->setValue(String(batteryPercentage));
 }
 
+uint8_t BLEServerManager::connected() const {
+    return m_connected;
+}
+
 void BLEServerManager::start() {
     m_service->start();
     m_server->startAdvertising();

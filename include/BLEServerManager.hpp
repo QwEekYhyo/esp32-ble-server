@@ -20,6 +20,8 @@ public:
     void setBatteryCharacteristic(BLECharacteristic*);
     uint8_t getCurrentBrightness() const;
     void setCurrentBattery(double currentVoltage);
+    uint8_t connected() const;
+
     void start();
     void stop();
 
@@ -28,15 +30,19 @@ private:
 
     BLEServerManager();
 
+    volatile uint8_t m_connected{0};
     BLEServer* m_server;
     BLEService* m_service;
     BLECharacteristic* m_brightness;
     BLECharacteristic* m_battery;
 
     class ServerCallBacks : public BLEServerCallbacks {
-        void onConnect(BLEServer* pServer) {}
+        void onConnect(BLEServer* pServer) {
+            BLEServerManager::instance()->m_connected = 1;
+        }
 
         void onDisconnect(BLEServer* pServer) {
+            BLEServerManager::instance()->m_connected = 0;
             pServer->startAdvertising();
         }
     };

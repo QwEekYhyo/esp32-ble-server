@@ -68,8 +68,9 @@ void loop() {
     if (iterationCounter % 10 == 0)
         server->setCurrentBattery(voltage);
 
-    if (!digitalRead(10)) {
+    if (!digitalRead(10) && !server->connected()) {
         /* Battery is charging */
+        /* Not connected to any phone */
         size_t line_length = (size_t) map_cool(voltage, 3.0, 4.2, 1.0, LEDManager::NUM_LED);
         if (!wasPreviouslyCharging) {
             wasPreviouslyCharging = true;
@@ -77,7 +78,6 @@ void loop() {
             ledManager.setBrightness(10);
             ledManager.line(LEDManager::NUM_LED);
             ledManager.emptyWithDelay(80, line_length);
-            server->stop();
         }
         iterationCounter++;
         if (iterationCounter >= 25) {
@@ -88,6 +88,7 @@ void loop() {
         delay(20);
     } else {
         /* Battery is not charging */
+        /* or it is, but also connected to a phone */
         if (wasPreviouslyCharging) {
             wasPreviouslyCharging = false;
             ledManager.turnOff();
