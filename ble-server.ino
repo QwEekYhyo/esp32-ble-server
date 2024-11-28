@@ -6,7 +6,6 @@
 #include "include/callbacks.hpp"
 #include "include/utils.hpp"
 
-#define DEFAULT_DEVICE_NAME "Cool device v2"
 #define BATTERY_UUID    "11111111-1111-1111-1111-111111111111"
 #define BRIGHTNESS_UUID "22222222-2222-2222-2222-222222222222"
 #define COLOR_UUID      "33333333-3333-3333-3333-333333333333"
@@ -20,7 +19,6 @@ uint64_t lastBrightnessChange = 0;
 bool isBrightnessChanging = false;
 bool wasPreviouslyCharging = false;
 int animOffset = 0;
-BLEServerManager* server;
 
 class BrightnessCallbacks : public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic* pCharacteristic) {
@@ -43,7 +41,7 @@ void setup() {
     pinMode(11, INPUT);
     LEDManager::instance.turnOff();
 
-    server = new BLEServerManager(DEFAULT_DEVICE_NAME);
+    BLEServerManager* server = BLEServerManager::instance();
 
     server->addCharacteristic(NAME_UUID, DEFAULT_DEVICE_NAME, new NameCallbacks());
     char colorString[7];
@@ -64,6 +62,8 @@ int16_t V;
 double voltage;
 
 void loop() {
+    BLEServerManager* server = BLEServerManager::instance();
+
     Wire.beginTransmission(0x70);
     Wire.write(0);
     Wire.write(16);

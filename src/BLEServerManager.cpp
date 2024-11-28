@@ -2,9 +2,16 @@
 #include "../include/BLEServerManager.hpp"
 #include "../include/utils.hpp"
 
-BLEServerManager::BLEServerManager(const char* name) {
+BLEServerManager* BLEServerManager::m_instance = nullptr;
+BLEServerManager* BLEServerManager::instance() {
+    if (!BLEServerManager::m_instance)
+        BLEServerManager::m_instance = new BLEServerManager();
+    return BLEServerManager::m_instance;
+}
+
+BLEServerManager::BLEServerManager() {
     // Init server
-    BLEDevice::init(name);
+    BLEDevice::init(DEFAULT_DEVICE_NAME);
     m_server = BLEDevice::createServer();
     m_server->setCallbacks(new ServerCallBacks());
 
