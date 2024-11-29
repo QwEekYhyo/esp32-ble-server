@@ -28,6 +28,8 @@ public:
     void rainbow(int offset);
     /* Hardware Dependent */
     void line(uint8_t length);
+    /* Hardware Dependent */
+    void bluetoothWaiting(int offset);
 
     void setBrightness(uint8_t brightness);
     void setColor(const char* stringColor);

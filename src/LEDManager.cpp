@@ -101,20 +101,32 @@ size_t LEDManager::getLedIndex(size_t x, size_t y) const {
 
 void LEDManager::line(uint8_t length) {
     if (length == 0) {
-        for (uint8_t i = 0; i < LEDManager::NUM_LED; i++) {
+        for (uint8_t i = 0; i < LEDManager::NUM_LED; i++)
             m_pixels.setPixelColor(i, 0, 0, 0);
-        }
     } else {
         for (uint8_t y = 0; y < LEDManager::HEIGHT; y++) {
             for (uint8_t x = 0; x < shape[y]; x++) {
-                if (x < length) {
+                if (x < length)
                     m_pixels.setPixelColor(getLedIndex(x, y), m_currentColor.r, m_currentColor.g, m_currentColor.b);
-                } else {
+                else
                     m_pixels.setPixelColor(getLedIndex(x, y), 0, 0, 0);
-                }
             }
         }
     }
+    m_pixels.show();
+}
+
+void LEDManager::bluetoothWaiting(int offset) {
+    constexpr uint8_t numValues = 100;
+    constexpr uint8_t middleValue = numValues / 2;
+
+    for (uint8_t i = 0; i < LEDManager::NUM_LED - 1; i++)
+        m_pixels.setPixelColor(i, 0, 0, 0);
+
+    uint8_t blue = offset % numValues;
+    if (blue >= middleValue)
+        blue -= 2 * (blue - middleValue);
+    m_pixels.setPixelColor(LEDManager::NUM_LED - 1, 0, 0, 2 * (blue + 1));
     m_pixels.show();
 }
 

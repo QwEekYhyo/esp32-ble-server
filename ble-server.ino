@@ -18,7 +18,11 @@ uint64_t bitmask = (BUTTON_PIN_BITMASK(GPIO_NUM_10) | BUTTON_PIN_BITMASK(GPIO_NU
 uint64_t lastBrightnessChange = 0;
 bool isBrightnessChanging = false;
 bool wasPreviouslyCharging = false;
-int animOffset = 0;
+bool wasPreviouslyConnected = false;
+unsigned int animOffset = 0;
+uint8_t iterationCounter = 0;
+int16_t V;
+double voltage;
 
 void setup() {
     BLEServerManager* server = BLEServerManager::instance();
@@ -44,10 +48,6 @@ void setup() {
     ledManager.setBrightness(50);
     ledManager.turnOff();
 }
-
-uint8_t iterationCounter = 0;
-int16_t V;
-double voltage;
 
 void loop() {
     BLEServerManager* server = BLEServerManager::instance();
@@ -93,8 +93,19 @@ void loop() {
             wasPreviouslyCharging = false;
             ledManager.turnOff();
             ledManager.setBrightness(server->getCurrentBrightness());
-            server->start();
         }
+
+        if (!server->connected()) {
+            wasPreviouslyConnected = false;
+            if (iterationCounter++ >= 20) {
+                iterationCounter = 0;
+                ledManager.bluetoothWaiting(animOffset++);
+            }
+        } else if (!wasPreviouslyConnected) {
+            wasPreviouslyConnected = true;
+            ledManager.turnOff();
+        }
+
         if (isBrightnessChanging) {
             iterationCounter++;
             if (iterationCounter >= 3) {
@@ -121,4 +132,11 @@ void loop() {
         esp_sleep_enable_ext1_wakeup_io(bitmask, ESP_EXT1_WAKEUP_ANY_LOW);
         esp_deep_sleep_start();
     }
+
+    // If theses counters are near their max value
+    // set them to zero to avoid overflow
+    if (iterationCounter >= 253)
+        iterationCounter = 0;
+    if (animOffset >= 4294967200) // lmao
+        animOffset = 0;
 }
