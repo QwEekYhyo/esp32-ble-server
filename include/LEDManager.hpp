@@ -15,6 +15,8 @@ public:
     static constexpr uint8_t NUM_LED{21};
 
     static LEDManager& instance();
+    LEDManager(const LEDManager&) = delete;
+    LEDManager& operator=(const LEDManager&) = delete;
 
     void turnOff();
     void fill();
