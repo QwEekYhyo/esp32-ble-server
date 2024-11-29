@@ -35,6 +35,7 @@ void setup() {
     pinMode(11, INPUT);
     ledManager.turnOff();
 
+    // Setup Bluetooth Low Energy server
     server->addCharacteristic(NAME_UUID, DEFAULT_DEVICE_NAME, new NameCallbacks());
     char colorString[7];
     server->addCharacteristic(COLOR_UUID, ledManager.getColor().toString(colorString), new ColorCallbacks());
@@ -44,6 +45,7 @@ void setup() {
 
     server->start();
 
+    // Power on animation
     ledManager.fillWithDelay(Color(0, 10, 0), 80);
     ledManager.setBrightness(50);
     ledManager.turnOff();
@@ -53,6 +55,7 @@ void loop() {
     BLEServerManager* server = BLEServerManager::instance();
     LEDManager& ledManager = LEDManager::instance();
 
+    // Read magic module to get battery voltage
     Wire.beginTransmission(0x70);
     Wire.write(0);
     Wire.write(16);
@@ -72,6 +75,7 @@ void loop() {
         /* Battery is charging */
         /* Not connected to any phone */
         size_t line_length = (size_t) map_cool(voltage, 3.0, 4.2, 1.0, LEDManager::NUM_LED);
+        // All of this shit is just the charging animation
         if (!wasPreviouslyCharging) {
             wasPreviouslyCharging = true;
             ledManager.setColor("00FF00");
@@ -89,12 +93,15 @@ void loop() {
     } else {
         /* Battery is not charging */
         /* or it is, but also connected to a phone */
+
+        // Clean charging animation
         if (wasPreviouslyCharging) {
             wasPreviouslyCharging = false;
             ledManager.turnOff();
             ledManager.setBrightness(server->getCurrentBrightness());
         }
 
+        // Waiting for Bluetooth connection animation
         if (!server->connected()) {
             wasPreviouslyConnected = false;
             if (iterationCounter++ >= 20) {
@@ -106,6 +113,7 @@ void loop() {
             ledManager.turnOff();
         }
 
+        // Brightness changing animation
         if (isBrightnessChanging) {
             iterationCounter++;
             if (iterationCounter >= 3) {
