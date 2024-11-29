@@ -15,8 +15,8 @@
 #define BUTTON_PIN_BITMASK(GPIO) (1ULL << GPIO)  
 uint64_t bitmask = (BUTTON_PIN_BITMASK(GPIO_NUM_10) | BUTTON_PIN_BITMASK(GPIO_NUM_11));
 
-uint64_t lastBrightnessChange = 0;
-bool isBrightnessChanging = false;
+volatile uint64_t lastBrightnessChange = 0;
+volatile bool isBrightnessChanging = false;
 bool wasPreviouslyCharging = false;
 bool wasPreviouslyConnected = false;
 unsigned int animOffset = 0;
@@ -110,7 +110,7 @@ void loop() {
             }
         } else if (!wasPreviouslyConnected) {
             wasPreviouslyConnected = true;
-            ledManager.turnOff();
+            ledManager.DEVICE_IS_ON();
         }
 
         // Brightness changing animation
@@ -124,7 +124,7 @@ void loop() {
             delay(20);
             if (millis64() - lastBrightnessChange >= 1500) {
                 isBrightnessChanging = false;
-                ledManager.turnOff();
+                ledManager.DEVICE_IS_ON();
                 animOffset = 0;
             }
         }

@@ -7,8 +7,8 @@
 #include "LEDManager.hpp"
 #include "utils.hpp"
 
-extern uint64_t lastBrightnessChange;
-extern bool isBrightnessChanging;
+extern volatile uint64_t lastBrightnessChange;
+extern volatile bool isBrightnessChanging;
 
 class BrightnessCallbacks : public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic* pCharacteristic) {

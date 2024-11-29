@@ -2,6 +2,7 @@
 #include <cstdint>
 
 #include "../include/LEDManager.hpp"
+#include "../include/BLEServerManager.hpp"
 
 LEDManager& LEDManager::instance() {
     static LEDManager INSTANCE;
@@ -74,7 +75,7 @@ void LEDManager::displayDistance(int distance) {
         uint8_t line_length = 1 + ((400 - distance) / 400.0) * 20.0;
         line(line_length);
     } else {
-        turnOff();
+        DEVICE_IS_ON();
         m_previousLineLength = 0;
     }
 }
@@ -128,6 +129,16 @@ void LEDManager::bluetoothWaiting(int offset) {
         blue -= 2 * (blue - middleValue);
     m_pixels.setPixelColor(LEDManager::NUM_LED - 1, 0, 0, 2 * (blue + 1));
     m_pixels.show();
+}
+
+void LEDManager::DEVICE_IS_ON() {
+    const uint8_t brightness = BLEServerManager::instance()->getCurrentBrightness();
+    m_pixels.setBrightness(5);
+    for (uint8_t i = 0; i < LEDManager::NUM_LED - 1; i++)
+        m_pixels.setPixelColor(i, 0, 0, 0);
+    m_pixels.setPixelColor(LEDManager::NUM_LED - 1, 0, 255, 0);
+    m_pixels.show();
+    m_pixels.setBrightness(brightness);
 }
 
 void LEDManager::setBrightness(uint8_t brightness) {

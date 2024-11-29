@@ -30,6 +30,8 @@ public:
     void line(uint8_t length);
     /* Hardware Dependent */
     void bluetoothWaiting(int offset);
+    /* Hardware Dependent */
+    void DEVICE_IS_ON();
 
     void setBrightness(uint8_t brightness);
     void setColor(const char* stringColor);
@@ -43,7 +45,7 @@ private:
 
     Adafruit_NeoPixel m_pixels;
     Color m_currentColor;
-    size_t m_previousLineLength{0};
+    size_t m_previousLineLength{0}; // this isn't used anymore but I might at some point
 
     /* Hardware Dependent */
     size_t getLedIndex(size_t x, size_t y) const;
