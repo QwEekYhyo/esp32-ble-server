@@ -88,6 +88,7 @@ void loop() {
         // All of this shit is just the charging animation
         if (!wasPreviouslyCharging) {
             wasPreviouslyCharging = true;
+            wasPreviouslyConnected = false;
             ledManager.setColor("00FF00");
             ledManager.setBrightness(10);
             ledManager.line(LEDManager::NUM_LED);
