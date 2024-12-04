@@ -58,10 +58,6 @@ const char* generate_formatted_uuid(uint8_t* uuid, std::function<void(void*, siz
 }
 #endif
 
-float map_cool(float x, float in_min, float in_max, float out_min, float out_max) {
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-}
-
 uint64_t millis64() {
     static uint32_t low32, high32;
     uint32_t new_low32 = millis();

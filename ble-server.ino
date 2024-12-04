@@ -15,6 +15,9 @@
 #define BUTTON_PIN_BITMASK(GPIO) (1ULL << GPIO)  
 uint64_t bitmask = (BUTTON_PIN_BITMASK(GPIO_NUM_10) | BUTTON_PIN_BITMASK(GPIO_NUM_11));
 
+static constexpr float MIN_BATTERY_VOLTAGE = 3.0;
+static constexpr float MAX_BATTERY_VOLTAGE = 4.2;
+
 volatile uint64_t lastBrightnessChange = 0;
 volatile bool isBrightnessChanging = false;
 bool wasPreviouslyCharging = false;
@@ -74,7 +77,14 @@ void loop() {
     if (!digitalRead(10) && !server->connected()) {
         /* Battery is charging */
         /* Not connected to any phone */
-        size_t line_length = (size_t) map_cool(voltage, 3.0, 4.2, 1.0, LEDManager::NUM_LED);
+        voltage = Nutils::clamp<float>(voltage, MIN_BATTERY_VOLTAGE, MAX_BATTERY_VOLTAGE);
+        uint8_t line_length = (uint8_t) Nutils::map<float>(
+                voltage,
+                MIN_BATTERY_VOLTAGE,
+                MAX_BATTERY_VOLTAGE,
+                1.0,
+                LEDManager::NUM_LED
+        );
         // All of this shit is just the charging animation
         if (!wasPreviouslyCharging) {
             wasPreviouslyCharging = true;
