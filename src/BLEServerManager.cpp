@@ -60,7 +60,7 @@ uint8_t BLEServerManager::getCurrentBrightness() const {
 }
 
 void BLEServerManager::setCurrentBattery(double currentVoltage) {
-    currentVoltage = Nutils::map<double>(currentVoltage, 3.0, 4.2, 0, 100);
+    currentVoltage = Nutils::map<double>(currentVoltage, 3.0, 4.2, 0.0, 100.0);
     int batteryPercentage = floor(currentVoltage);
     m_battery->setValue(String(batteryPercentage));
 }

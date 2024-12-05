@@ -12,12 +12,12 @@ const char* generate_formatted_uuid(uint8_t* uuid, std::function<void(void*, siz
 
 namespace Nutils {
     template <typename T>
-    inline T map(T x, T in_min, T in_max, T out_min, T out_max) {
+    constexpr T map(const T& x, const T& in_min, const T& in_max, const T& out_min, const T& out_max) {
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
 
     template <typename T>
-    inline T clamp(T x, T min, T max) {
+    constexpr const T& clamp(const T& x, const T& min, const T& max) {
         return x <= min ? min : (x >= max ? max : x);
     }
 }
