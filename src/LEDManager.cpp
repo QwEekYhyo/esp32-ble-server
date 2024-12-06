@@ -71,6 +71,10 @@ void LEDManager::emptyWithDelay(size_t millis, uint8_t index) {
     }
 }
 
+void LEDManager::resetCursors() {
+    m_currentCursor = m_targetCursor = 0;
+}
+
 void LEDManager::reachTargetCursor() {
     static uint64_t lastUpdate = 0;
     if (millis64() - lastUpdate < 100)

@@ -128,6 +128,7 @@ void loop() {
         } else if (!wasPreviouslyConnected) {
             wasPreviouslyConnected = true;
             ledManager.setBrightness(server->getCurrentBrightness());
+            ledManager.resetCursors();
             ledManager.DEVICE_IS_ON();
         }
 

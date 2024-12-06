@@ -24,6 +24,7 @@ public:
     void fillWithDelay(const Color& color, size_t delay);
     void emptyWithDelay(size_t delay, uint8_t index);
     void reachTargetCursor();
+    void resetCursors();
     /* Hardware Dependent */
     void displayDistance(int distance);
     /* Hardware Dependent */
