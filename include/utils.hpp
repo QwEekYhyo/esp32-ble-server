@@ -20,6 +20,11 @@ namespace Nutils {
     constexpr const T& clamp(const T& x, const T& min, const T& max) {
         return x <= min ? min : (x >= max ? max : x);
     }
+
+    template <typename T>
+    constexpr int compare(const T& a, const T& b) {
+        return (a > b) - (a < b);
+    }
 }
 
 uint64_t millis64();

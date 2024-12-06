@@ -3,6 +3,7 @@
 
 #include "../include/LEDManager.hpp"
 #include "../include/BLEServerManager.hpp"
+#include "../include/utils.hpp"
 
 LEDManager& LEDManager::instance() {
     static LEDManager INSTANCE;
@@ -70,14 +71,25 @@ void LEDManager::emptyWithDelay(size_t millis, uint8_t index) {
     }
 }
 
-void LEDManager::displayDistance(int distance) {
-    if (distance <= 400) {
-        uint8_t line_length = 1 + ((400 - distance) / 400.0) * 20.0;
-        line(line_length);
-    } else {
+void LEDManager::reachTargetCursor() {
+    static uint64_t lastUpdate = 0;
+    if (millis64() - lastUpdate < 100)
+        return;
+    lastUpdate = millis64();
+
+    if (m_currentCursor == m_targetCursor && m_targetCursor == 0)
         DEVICE_IS_ON();
-        m_previousLineLength = 0;
+    else {
+        m_currentCursor += Nutils::compare(m_targetCursor, m_currentCursor);
+        line(m_currentCursor);
     }
+}
+
+void LEDManager::displayDistance(int distance) {
+    if (distance <= 400)
+        m_targetCursor = 1 + ((400 - distance) / 400.0) * 20.0;
+    else
+        m_targetCursor = 0;
 }
 
 void LEDManager::rainbow(int offset) {

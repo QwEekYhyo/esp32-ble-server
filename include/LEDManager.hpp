@@ -23,6 +23,8 @@ public:
     void fill(const Color& color);
     void fillWithDelay(const Color& color, size_t delay);
     void emptyWithDelay(size_t delay, uint8_t index);
+    void reachTargetCursor();
+    /* Hardware Dependent */
     void displayDistance(int distance);
     /* Hardware Dependent */
     void rainbow(int offset);
@@ -38,6 +40,9 @@ public:
     const Color& getColor() const;
 
 private:
+    /* These are used to display distance */
+    uint8_t m_targetCursor{0};
+    uint8_t m_currentCursor{0};
     /* Hardware Dependent */
     static constexpr uint8_t LED_PIN{5};
 
@@ -45,7 +50,6 @@ private:
 
     Adafruit_NeoPixel m_pixels;
     Color m_currentColor;
-    size_t m_previousLineLength{0}; // this isn't used anymore but I might at some point
 
     /* Hardware Dependent */
     size_t getLedIndex(size_t x, size_t y) const;

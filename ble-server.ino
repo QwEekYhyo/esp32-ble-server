@@ -120,9 +120,9 @@ void loop() {
                 ledManager.setBrightness(50);
             }
 
-            static unsigned long lastAnimationTime = 0;
-            if (millis() - lastAnimationTime >= 20) {
-                lastAnimationTime = millis();
+            static uint64_t lastAnimationTime = 0;
+            if (millis64() - lastAnimationTime >= 20) {
+                lastAnimationTime = millis64();
                 ledManager.bluetoothWaiting(lastAnimationTime);
             }
         } else if (!wasPreviouslyConnected) {
@@ -143,6 +143,8 @@ void loop() {
                 ledManager.DEVICE_IS_ON();
                 animOffset = 0;
             }
+        } else if (server->connected()) {
+            ledManager.reachTargetCursor();
         }
     }
 
