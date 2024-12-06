@@ -27,7 +27,7 @@ BLECharacteristic* BLEServerManager::addCharacteristic(const char* UUID, const c
     BLECharacteristic* newCharacteristic = m_service->createCharacteristic(
                                            UUID,
                                            BLECharacteristic::PROPERTY_READ |
-                                           BLECharacteristic::PROPERTY_WRITE
+                                           BLECharacteristic::PROPERTY_WRITE_NR
                                          );
     newCharacteristic->setCallbacks(callbacks);
     newCharacteristic->setValue(defaultValue);
