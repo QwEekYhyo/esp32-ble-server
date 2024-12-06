@@ -73,7 +73,7 @@ void loop() {
     V = Wire.read() | (Wire.read() << 8);
 
     voltage = float(V) * 0.00244;
-    if (iterationCounter % 10 == 0)
+    if (iterationCounter % 15 <= 3)
         server->setCurrentBattery(voltage);
 
     if (!digitalRead(10) && !server->connected()) {
