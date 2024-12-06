@@ -29,7 +29,7 @@ public:
     /* Hardware Dependent */
     void line(uint8_t length);
     /* Hardware Dependent */
-    void bluetoothWaiting(int offset);
+    void bluetoothWaiting(unsigned long offset);
     /* Hardware Dependent */
     void DEVICE_IS_ON();
 

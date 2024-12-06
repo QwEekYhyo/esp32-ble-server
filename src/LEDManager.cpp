@@ -117,16 +117,17 @@ void LEDManager::line(uint8_t length) {
     m_pixels.show();
 }
 
-void LEDManager::bluetoothWaiting(int offset) {
+void LEDManager::bluetoothWaiting(unsigned long offsetMillis) {
     constexpr uint8_t numValues = 100;
     constexpr uint8_t middleValue = numValues / 2;
+
+    uint8_t blue = (offsetMillis / 20) % numValues;
+    if (blue >= middleValue)
+        blue = 2 * middleValue - blue;
 
     for (uint8_t i = 0; i < LEDManager::NUM_LED - 1; i++)
         m_pixels.setPixelColor(i, 0, 0, 0);
 
-    uint8_t blue = offset % numValues;
-    if (blue >= middleValue)
-        blue -= 2 * (blue - middleValue);
     m_pixels.setPixelColor(LEDManager::NUM_LED - 1, 0, 0, 2 * (blue + 1));
     m_pixels.show();
 }

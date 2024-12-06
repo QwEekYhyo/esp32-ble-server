@@ -13,7 +13,7 @@
 #define NAME_UUID       "55555555-5555-5555-5555-555555555555"
 
 #define BUTTON_PIN_BITMASK(GPIO) (1ULL << GPIO)  
-uint64_t bitmask = (BUTTON_PIN_BITMASK(GPIO_NUM_10) | BUTTON_PIN_BITMASK(GPIO_NUM_11));
+static constexpr uint64_t bitmask = (BUTTON_PIN_BITMASK(GPIO_NUM_10) | BUTTON_PIN_BITMASK(GPIO_NUM_11));
 
 static constexpr float MIN_BATTERY_VOLTAGE = 3.0;
 static constexpr float MAX_BATTERY_VOLTAGE = 4.2;
@@ -58,6 +58,8 @@ void loop() {
     BLEServerManager* server = BLEServerManager::instance();
     LEDManager& ledManager = LEDManager::instance();
 
+    iterationCounter++;
+
     // Read magic module to get battery voltage
     Wire.beginTransmission(0x70);
     Wire.write(0);
@@ -94,7 +96,6 @@ void loop() {
             ledManager.line(LEDManager::NUM_LED);
             ledManager.emptyWithDelay(80, line_length);
         }
-        iterationCounter++;
         if (iterationCounter >= 25) {
             animOffset++;
             iterationCounter = 0;
@@ -114,25 +115,29 @@ void loop() {
 
         // Waiting for Bluetooth connection animation
         if (!server->connected()) {
-            wasPreviouslyConnected = false;
-            if (iterationCounter++ >= 20) {
-                iterationCounter = 0;
-                ledManager.bluetoothWaiting(animOffset++);
+            if (wasPreviouslyConnected) {
+                wasPreviouslyConnected = false;
+                ledManager.setBrightness(50);
+            }
+
+            static unsigned long lastAnimationTime = 0;
+            if (millis() - lastAnimationTime >= 20) {
+                lastAnimationTime = millis();
+                ledManager.bluetoothWaiting(lastAnimationTime);
             }
         } else if (!wasPreviouslyConnected) {
             wasPreviouslyConnected = true;
+            ledManager.setBrightness(server->getCurrentBrightness());
             ledManager.DEVICE_IS_ON();
         }
 
         // Brightness changing animation
         if (isBrightnessChanging) {
-            iterationCounter++;
-            if (iterationCounter >= 3) {
+            if (iterationCounter >= 30) {
                 animOffset++;
                 iterationCounter = 0;
             }
             ledManager.rainbow(animOffset);
-            delay(20);
             if (millis64() - lastBrightnessChange >= 1500) {
                 isBrightnessChanging = false;
                 ledManager.DEVICE_IS_ON();
