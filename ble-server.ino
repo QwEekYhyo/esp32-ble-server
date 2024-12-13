@@ -17,15 +17,15 @@ static constexpr uint64_t bitmask = (BUTTON_PIN_BITMASK(GPIO_NUM_10) | BUTTON_PI
 
 static constexpr float MIN_BATTERY_VOLTAGE = 3.0;
 static constexpr float MAX_BATTERY_VOLTAGE = 4.2;
+static constexpr uint64_t BUTTON_HOLD_TIME = 2300;
 
 volatile uint64_t lastBrightnessChange = 0;
 volatile bool isBrightnessChanging = false;
-bool wasPreviouslyCharging = false;
-bool wasPreviouslyConnected = false;
+uint64_t buttonPressStartTime = 0;
 unsigned int animOffset = 0;
 uint8_t iterationCounter = 0;
-int16_t V;
-double voltage;
+bool wasPreviouslyCharging = false;
+bool wasPreviouslyConnected = false;
 
 void setup() {
     BLEServerManager* server = BLEServerManager::instance();
@@ -54,6 +54,9 @@ void setup() {
     ledManager.turnOff();
 }
 
+double voltage; // Calculated voltage in Volts
+int16_t V; // Raw reading from magic module
+
 void loop() {
     BLEServerManager* server = BLEServerManager::instance();
     LEDManager& ledManager = LEDManager::instance();
@@ -69,7 +72,7 @@ void loop() {
     Wire.beginTransmission(0x70);
     Wire.write(8);
     Wire.endTransmission();
-    Wire.requestFrom(0x70,2);
+    Wire.requestFrom(0x70, 2);
     V = Wire.read() | (Wire.read() << 8);
 
     voltage = float(V) * 0.00244;
@@ -149,21 +152,29 @@ void loop() {
         }
     }
 
-    // Power button is pressed to turn off device
+    // Check if the power button is pressed
     if (!digitalRead(11)) {
-        ledManager.turnOff();
-        server->stop();
-        ledManager.setBrightness(50);
-        ledManager.fillWithDelay(Color(100, 0, 0), 80);
-        ledManager.turnOff();
-        esp_sleep_enable_ext1_wakeup_io(bitmask, ESP_EXT1_WAKEUP_ANY_LOW);
-        esp_deep_sleep_start();
+        if (buttonPressStartTime == 0) {
+            buttonPressStartTime = millis64();
+        } else if (millis64() - buttonPressStartTime >= BUTTON_HOLD_TIME) {
+            // Button held for BUTTON_HOLD_TIME ms
+            ledManager.turnOff();
+            server->stop();
+            ledManager.setBrightness(50);
+            ledManager.fillWithDelay(Color(100, 0, 0), 80);
+            ledManager.turnOff();
+            esp_sleep_enable_ext1_wakeup_io(bitmask, ESP_EXT1_WAKEUP_ANY_LOW);
+            esp_deep_sleep_start();
+        }
+    } else {
+        buttonPressStartTime = 0; // Reset if the button is released
     }
 
-    // If theses counters are near their max value
+    // If these counters are near their max value
     // set them to zero to avoid overflow
     if (iterationCounter >= 253)
         iterationCounter = 0;
     if (animOffset >= 4294967200) // lmao
         animOffset = 0;
 }
+
