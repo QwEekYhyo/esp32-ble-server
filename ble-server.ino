@@ -1,9 +1,11 @@
 #include <esp_bt_device.h>
+#include <EEPROM.h>
 #include "Wire.h"
 
 #include "include/BLEServerManager.hpp"
 #include "include/LEDManager.hpp"
 #include "include/callbacks.hpp"
+#include "include/eeprom.hpp"
 #include "include/utils.hpp"
 
 #define BATTERY_UUID    "11111111-1111-1111-1111-111111111111"
@@ -18,6 +20,8 @@ static constexpr uint64_t bitmask = (BUTTON_PIN_BITMASK(GPIO_NUM_10) | BUTTON_PI
 static constexpr float MIN_BATTERY_VOLTAGE = 3.0;
 static constexpr float MAX_BATTERY_VOLTAGE = 4.2;
 static constexpr uint64_t BUTTON_HOLD_TIME = 2300;
+
+static constexpr uint16_t EEPROM_SIZE = 512;
 
 volatile uint64_t lastBrightnessChange = 0;
 volatile bool isBrightnessChanging = false;
@@ -39,7 +43,16 @@ void setup() {
     ledManager.turnOff();
 
     // Setup Bluetooth Low Energy server
-    server->addCharacteristic(NAME_UUID, DEFAULT_DEVICE_NAME, new NameCallbacks());
+    EEPROM.begin(EEPROM_SIZE);
+    // If EEPROM was never written
+    if (EEPROM.read(0) == 0xff) {
+        EEPROM.write(0, 0x69);
+        save_name(DEFAULT_DEVICE_NAME, strlen(DEFAULT_DEVICE_NAME));
+    }
+    char name_str[256];
+    read_name(name_str);
+    esp_ble_gap_set_device_name(name_str);
+    server->addCharacteristic(NAME_UUID, name_str, new NameCallbacks());
     char colorString[7];
     server->addCharacteristic(COLOR_UUID, ledManager.getColor().toString(colorString), new ColorCallbacks());
     server->addCharacteristic(DISTANCE_UUID, "0", new DistanceCallbacks());

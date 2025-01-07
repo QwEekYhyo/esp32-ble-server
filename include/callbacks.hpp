@@ -4,6 +4,7 @@
 #include "BLEServer.h"
 #include "BLEDevice.h"
 
+#include "eeprom.hpp"
 #include "LEDManager.hpp"
 #include "utils.hpp"
 
@@ -40,8 +41,11 @@ class DistanceCallbacks : public BLECharacteristicCallbacks {
 class NameCallbacks : public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic* pCharacteristic) {
         String value = pCharacteristic->getValue();
-        if (value.length() > 0)
-            esp_ble_gap_set_device_name(value.c_str());
+        if (value.length() > 0) {
+            const char* name = value.c_str();
+            esp_ble_gap_set_device_name(name);
+            save_name(name, value.length());
+        }
     }
 };
 
