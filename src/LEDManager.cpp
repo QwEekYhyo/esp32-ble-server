@@ -91,7 +91,7 @@ void LEDManager::reachTargetCursor() {
 
 void LEDManager::displayDistance(int distance) {
     if (distance <= 400)
-        m_targetCursor = 1 + ((400 - distance) / 400.0) * 20.0;
+        m_targetCursor = 1 + ((400 - distance) / 400.0) * LEDManager::NUM_LED;
     else
         m_targetCursor = 0;
 }
